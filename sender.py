@@ -12,7 +12,7 @@ json_payloads = [
 file_objs = [('files', json.dumps(payload)) for payload in json_payloads]
 
 # Send the POST request to start crawling
-response = requests.post('http://localhost:5000/crowd4sdg/start', files=file_objs)
+response = requests.post('http://3.69.174.135:3333/processing/start', files=file_objs)
 
 # Check the response
 if response.status_code == 200:
