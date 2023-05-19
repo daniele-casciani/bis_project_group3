@@ -34,7 +34,7 @@ def serve_files():
 def serve_file(filename):
     return send_from_directory(os.getcwd()+"/files/output_folder", filename)
 
-@app.route('/crowd4sdg/start', methods=['POST'])
+@app.route('/processing/start', methods=['POST'])
 def start_processing():
     json_files = request.files.getlist('files')
     # 'files' is the name of the file input field in the form
