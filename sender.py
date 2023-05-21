@@ -1,5 +1,8 @@
 import requests
 import json
+### The code provided demonstrates how to send a POST request to the /processing/start route 
+### of a Flask server running on http://localhost:5000. It uses the requests library to make the 
+### HTTP request and includes sample JSON payloads.
 
 # Assuming your Flask server is running on http://localhost:5000
 
