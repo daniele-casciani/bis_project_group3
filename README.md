@@ -1,1 +1,4 @@
 # bis_project_group3
+
+TODO:
+- In sample.py choose the correct mandatory fields
