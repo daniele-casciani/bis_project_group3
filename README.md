@@ -2,3 +2,4 @@
 
 TODO:
 - In sample.py choose the correct mandatory fields
+- Find Ram and Storage usage for Pual
