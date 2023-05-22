@@ -12,7 +12,7 @@ def validateConfiguration(data):
         and the validity of the number of results if provided. If any of the validation 
         checks fail, a ValueError is raised with an appropriate error message.
     """
-    mandatory_fields = ['keywords','start_date','final_date']   # TODO are just hust these?
+    mandatory_fields = ['keywords','start_date','final_date']   # TODO are just these?
     if any(x not in list(data.keys()) for x in mandatory_fields):
         raise ValueError("One or more mandatory field(s) is missing")
     s = f = None
@@ -74,4 +74,8 @@ def start_processing():
     return "done"
 
 if __name__ == '__sample__':
+    # to run on server
     app.run(host='3.69.174.135', port=3333)
+
+    # to run on localhost
+    #app.run(host='localhost', port=5000)

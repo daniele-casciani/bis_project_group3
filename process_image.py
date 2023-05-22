@@ -21,8 +21,6 @@ from PIL import Image
 
 
 # cyclone, earthquake, flood, volcano, wildfire
-
-
 class Disasters(Enum):
     CYCLONE = 0
     EARTHQUAKE = 1
@@ -128,6 +126,26 @@ def empty_image_folder(directory):
     else:
         print("folder does not exist")
 
+def ensamble_pred(models, image):   
+
+    # Define the weights for each model
+    weights = [0.2, 0.3, 0.1, 0.15, 0.25]
+
+    ## Initialize empty list to store predictions from each model
+    probabilities = []
+
+    # Do the prediction
+    for model in models:
+        prediction = model.predict(image)
+        probabilities.append(prediction)
+    
+    # Calculate weighted scores for each class
+    weighted_scores = np.zeros_like(probabilities[0])
+
+    for i, model_pred in enumerate(probabilities):
+        weighted_scores += model_pred * weights[i]
+    
+    return weighted_scores
 
 def read_inputs(filter_model, classifier, curr_timestamp, image_dir, placeholder_image, event, output_directory):
     """ This is a function that reads inputs from a directory, processes images based on a given filter and classifier,
@@ -174,7 +192,11 @@ def read_inputs(filter_model, classifier, curr_timestamp, image_dir, placeholder
         if result[0][0] > result[0][1]:
             to_keep.append(0)
         else:
-            result = classifier.predict(image)
+            # here only relevant image
+            result = ensamble_pred(classifier, image)
+            
+            # index is the event type since the result is an enum ordered with like the label
+            # we just look to the respective index in vector to check only the interested class 
             index = getattr(Disasters, event_type).value
             accuracy = result[0][index]
             if accuracy == max(result[0]):
@@ -233,8 +255,15 @@ def process_image(event):
     """
     curr_timestamp, image_dir, placeholder_image, filter_dir, classifier_dir, output_dir = read_config()
     filter_model = keras.models.load_model(filter_dir)
-    classifier = keras.models.load_model(classifier_dir)
+
+    # Load an array of models in the classifier
+    classifier_models = []
+    for file_name in os.listdir(classifier_dir):
+        model_path = os.path.join(classifier_dir, file_name)
+        print("Loading model" + model_path)
+        classifier_model = keras.models.load_model(model_path)
+        classifier_models.append(classifier_model)
 
     # loop every 15 minutes
     # call if of group 1 for getting directory of data
-    read_inputs(filter_model, classifier, curr_timestamp, image_dir, placeholder_image, event, output_dir)
+    read_inputs(filter_model, classifier_models, curr_timestamp, image_dir, placeholder_image, event, output_dir)
