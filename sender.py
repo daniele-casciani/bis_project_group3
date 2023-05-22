@@ -17,6 +17,9 @@ file_objs = [('files', json.dumps(payload)) for payload in json_payloads]
 # Send the POST request to start crawling
 response = requests.post('http://3.69.174.135:3333/processing/start', files=file_objs)
 
+# Send post to the localhost 
+# response = requests.post('http://localhost:5000/processing/start', files=file_objs)
+
 # Check the response
 if response.status_code == 200:
     print('ok')
