@@ -63,9 +63,9 @@ def start_processing():
 
         # Parse the JSON data
         try:
-            json_payload = json.loads(json_data, filter_model, classifier_models)
+            json_payload = json.loads(json_data)
             #validateConfiguration(json_payload)
-            process_image(json_payload)
+            process_image(json_payload, filter_model, classifier_models)
         except ValueError:
             raise ValueError('Invalid JSON format')
         # Continue processing the JSON payload as needed
@@ -78,6 +78,7 @@ def load_models():
     # Load the filter model
     filter_dir = "models/filter/tl_binary.h5"
     filter_model = keras.models.load_model(filter_dir)
+    print("Loading model: " + filter_dir)
 
     # Load the classifier models
     classifier_dir = "models/ensamble1/"

@@ -36,13 +36,11 @@ def read_config():
     """
     f = open('files/configfile.json')
     configs = json.load(f)
-    filter_dir = configs['filter_dir']
-    classifier_dir = configs['classifier_dir']
     timestamp = datetime.fromisoformat(configs['curr_timestamp'])
     image_dir = configs["image_dir"]
     placeholder_image = configs['placeholder_image']
     output_dir = configs['output_dir']
-    return timestamp, image_dir, placeholder_image, filter_dir, classifier_dir, output_dir
+    return timestamp, image_dir, placeholder_image, output_dir
 
 
 def update_timestamp(timestamp):
@@ -253,7 +251,7 @@ def read_inputs(filter_model, classifier, curr_timestamp, image_dir, placeholder
 def process_image(event, filter_model, classifier_models):
     """ This is the main function that loads the pre-trained models and calls the read_inputs function.
     """
-    curr_timestamp, image_dir, placeholder_image, filter_dir, classifier_dir, output_dir = read_config()
+    curr_timestamp, image_dir, placeholder_image, output_dir = read_config()
     # loop every 15 minutes
     # call if of group 1 for getting directory of data
     read_inputs(filter_model, classifier_models, curr_timestamp, image_dir, placeholder_image, event, output_dir)
