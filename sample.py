@@ -5,8 +5,12 @@ import json
 from process_image import process_image
 from datetime import datetime
 
+from tensorflow import keras
 
 app = Flask(__name__)
+
+filter_model = None
+classifier_models = []
 
 def validateConfiguration(data):
     """ This function is designed to validate the configuration dictionary by checking
@@ -60,13 +64,33 @@ def start_processing():
         # Parse the JSON data
         try:
             json_payload = json.loads(json_data)
-            validateConfiguration(json_payload)
-            process_image(json_payload)
+            #validateConfiguration(json_payload)
+            process_image(json_payload, filter_model, classifier_models)
         except ValueError:
             raise ValueError('Invalid JSON format')
         # Continue processing the JSON payload as needed
 
     return "done"
+
+def load_models():
+    global filter_model, classifier_models
+
+    # Load the filter model
+    filter_dir = "models/filter/tl_binary.h5"
+    filter_model = keras.models.load_model(filter_dir)
+    print("Loading model: " + filter_dir)
+
+    # Load the classifier models
+    classifier_dir = "models/ensamble1/"
+    for file_name in os.listdir(classifier_dir):
+        model_path = os.path.join(classifier_dir, file_name)
+        print("Loading model: " + model_path)
+        classifier_model = keras.models.load_model(model_path)
+        classifier_models.append(classifier_model)
+
+
+# Call the load_models function to load the models when the Flask app starts
+load_models()
 
 # debugging reasons
 #if __name__ == '__sample__':
