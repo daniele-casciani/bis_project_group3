@@ -162,21 +162,30 @@ def read_inputs(filter_model, classifier, curr_timestamp, image_dir, placeholder
     # get the time at which we start processing
     # at next iteration, we know that all the images until this time are processed
 
-    new_time = datetime.now()
+    # not correct for the demo 
+    # new_time = datetime.now()
+
     # iterate on the files
     images = event["images"]
     event_type = event["type"].upper()
-    filename = event['id']
+    filename = event['event_id']
 
     # may need to change it in case of ISODate format
     timestamps = np.array([datetime.fromisoformat(obj["date"]) for obj in images])
+
     # Find the index of the last element with a timestamp lower than the target value
     index = np.searchsorted(timestamps, curr_timestamp, side='right')
     # print(timestamps, curr_timestamp)
 
+
     if index > len(images) - 1:
-        update_timestamp(new_time)
+        # update_timestamp(new_time)
         return 0
+    
+    print(timestamps)
+    new_time = timestamps.max()
+
+    print(new_time)
 
     images_to_process = images[index:]
 
@@ -184,7 +193,7 @@ def read_inputs(filter_model, classifier, curr_timestamp, image_dir, placeholder
     to_keep = []
     accuracies = []
     for i in range(0, len(images_to_process)):
-        url = images_to_process[i]['URLImage']
+        url = images_to_process[i]['image_url']
         image = fetch_image(url, i, placeholder_image, image_dir)
         result = filter_model.predict(image)
         if result[0][0] > result[0][1]:
