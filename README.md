@@ -5,13 +5,16 @@ This GitHub repository contains the code and documentation for Group 3 of the Sa
 
 The overall goal of the Satellite Data Recommendation System project, led by eGeos (Leonardo company), is to design a recommendation system that assists in the acquisition of satellite data for monitoring critical events primarily related to security and emergency. Group 3's specific focus is on developing the event confirmation AI module.
 
+
 ## Table of Contents
 - [Approach](#approach)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Features](#features)
 
+
 ## Approach
+
 In addressing the challenge of event confirmation, our focus is on image classification. We employ transfer learning and fine-tuning techniques to leverage pre-trained models for this task.
 
 To train our model, we manually labeled a dataset consisting of 5,000 images per each of the relevant classes: cyclone, earthquake, flood, volcano, and wildfire. This resulted in a total dataset of 25,000 images. We used this dataset to train different kinds of models, which were then combined into an ensemble model. This approach yielded excellent performance in classification for the relevant classes, achieving an average accuracy of 96% over our test set.
@@ -19,6 +22,7 @@ To train our model, we manually labeled a dataset consisting of 5,000 images per
 During development, we encountered the challenge of discarding irrelevant images that could potentially be fed into the model and misclassified. To mitigate this issue, we trained a binary classifier using 5,000 images for both the relevant and not relevant classes. The not relevant images were obtained from the well-known ImageNet dataset. This binary classifier achieved remarkable results in filtering the two classes, attaining an average accuracy of 99% on the test set.
 
 ## Installation
+
 To install and set up the Event Confirmation AI module, follow these steps:
 
 1. Clone this repository to your local machine using the following command:
