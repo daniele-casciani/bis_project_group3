@@ -124,8 +124,8 @@ def empty_image_folder(directory):
     else:
         print("folder does not exist")
 
-def ensamble_pred(models, image):   
 
+def ensamble_pred(models, image):
     # Define the weights for each model
     weights = [0.2, 0.3, 0.1, 0.15, 0.25]
 
@@ -136,14 +136,15 @@ def ensamble_pred(models, image):
     for model in models:
         prediction = model.predict(image)
         probabilities.append(prediction)
-    
+
     # Calculate weighted scores for each class
     weighted_scores = np.zeros_like(probabilities[0])
 
     for i, model_pred in enumerate(probabilities):
         weighted_scores += model_pred * weights[i]
-    
+
     return weighted_scores
+
 
 def read_inputs(filter_model, classifier, curr_timestamp, image_dir, placeholder_image, event, output_directory):
     """ This is a function that reads inputs from a directory, processes images based on a given filter and classifier,
@@ -162,7 +163,7 @@ def read_inputs(filter_model, classifier, curr_timestamp, image_dir, placeholder
     # get the time at which we start processing
     # at next iteration, we know that all the images until this time are processed
 
-    # not correct for the demo 
+    # not correct for the demo
     # new_time = datetime.now()
 
     # iterate on the files
@@ -177,15 +178,11 @@ def read_inputs(filter_model, classifier, curr_timestamp, image_dir, placeholder
     index = np.searchsorted(timestamps, curr_timestamp, side='right')
     # print(timestamps, curr_timestamp)
 
-
     if index > len(images) - 1:
         # update_timestamp(new_time)
-        return 0
-    
-    print(timestamps)
-    new_time = timestamps.max()
+        return "", curr_timestamp
 
-    print(new_time)
+    new_time = timestamps.max()
 
     images_to_process = images[index:]
 
@@ -201,9 +198,9 @@ def read_inputs(filter_model, classifier, curr_timestamp, image_dir, placeholder
         else:
             # here only relevant image
             result = ensamble_pred(classifier, image)
-            
+
             # index is the event type since the result is an enum ordered with like the label
-            # we just look to the respective index in vector to check only the interested class 
+            # we just look to the respective index in vector to check only the interested class
             index = getattr(Disasters, event_type).value
             accuracy = result[0][index]
             if accuracy == max(result[0]):
@@ -218,8 +215,8 @@ def read_inputs(filter_model, classifier, curr_timestamp, image_dir, placeholder
     # if no new relevant images for an event, we do not update the related file in the output folder
     if len(relevant_images) == 0:
         empty_image_folder(image_dir)
-        update_timestamp(new_time)
-        return 0
+        #update_timestamp(new_time)
+        return "", new_time
 
     done = 0
 
@@ -253,8 +250,14 @@ def read_inputs(filter_model, classifier, curr_timestamp, image_dir, placeholder
         event['images'] = images_with_accuracy
         event['average_accuracy'] = np.average(accuracies)
         write_output(event, filename, output_directory)
+
     empty_image_folder(image_dir)
-    update_timestamp(new_time)
+    #update_timestamp(new_time)
+
+    if done == 1:
+        return out_content, new_time
+    else:
+        return event, new_time
 
 
 def process_image(event, filter_model, classifier_models):
@@ -263,4 +266,5 @@ def process_image(event, filter_model, classifier_models):
     curr_timestamp, image_dir, placeholder_image, output_dir = read_config()
     # loop every 15 minutes
     # call if of group 1 for getting directory of data
-    read_inputs(filter_model, classifier_models, curr_timestamp, image_dir, placeholder_image, event, output_dir)
+    output, new_time = read_inputs(filter_model, classifier_models, curr_timestamp, image_dir, placeholder_image, event, output_dir)
+    return output, new_time

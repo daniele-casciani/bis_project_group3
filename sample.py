@@ -3,6 +3,7 @@ from flask import Flask, request, jsonify, send_from_directory
 from datetime import datetime
 import json
 from process_image import process_image
+from process_image import update_timestamp
 from datetime import datetime
 
 from tensorflow import keras
@@ -31,31 +32,15 @@ def validateConfiguration(data):
         if datetime.fromisoformat(image['timeframe'][0]) > datetime.fromisoformat(image['timeframe'][1]):
             raise ValueError("Invalid timeframe")
 
-@app.route('/group3output/')
+@app.route('/group3output/', methods=['POST'] )
 def serve_files():
     """ The purpose of this code is to generate a json response, containing a vector of documents
         in which each document is a file in the output folder
     """
-    file_dir = os.getcwd()+"/files/output_folder"
-    files = os.listdir(file_dir)
-    elements = []
-    for filename in files:
-        f = open(file_dir + '/' + filename)
-        contents = json.load(f)
-        elements.append(contents)
-    return json.dumps(elements)
-
-@app.route('/processing/start', methods=['POST'])
-def start_processing():
-    """ The purpose of this code is to handle POST requests to '/processing/start' that contain
-        uploaded files. It reads the contents of each JSON file, parses the JSON data, and passes
-        it to the process_image() function for further processing. If any of the uploaded files do
-        not contain valid JSON, a ValueError is raised. Finally, the route returns "done" as the
-        response to indicate that the processing is complete.
-    """
     json_files = request.files.getlist('files')
     # 'files' is the name of the file input field in the form
-
+    new_events = []
+    new_timestamps = []
     # Process each JSON file
     for json_file in json_files:
         # Read the contents of the file
@@ -65,12 +50,32 @@ def start_processing():
         try:
             json_payload = json.loads(json_data)
             #validateConfiguration(json_payload)
-            process_image(json_payload, filter_model, classifier_models)
+            stuff, timestamp = process_image(json_payload, filter_model, classifier_models)
+            new_events.append(stuff)
+            new_timestamps.append(timestamp)
         except ValueError:
             raise ValueError('Invalid JSON format')
         # Continue processing the JSON payload as needed
 
-    return "done"
+    update_timestamp(max(new_timestamps))
+    return json.dumps(new_events)
+
+@app.route('/visualize_all_events/')
+def start_processing():
+    """ The purpose of this code is to handle POST requests to '/processing/start' that contain
+        uploaded files. It reads the contents of each JSON file, parses the JSON data, and passes
+        it to the process_image() function for further processing. If any of the uploaded files do
+        not contain valid JSON, a ValueError is raised. Finally, the route returns "done" as the
+        response to indicate that the processing is complete.
+    """
+    file_dir = os.getcwd() + "/files/output_folder"
+    files = os.listdir(file_dir)
+    elements = []
+    for filename in files:
+        f = open(file_dir + '/' + filename)
+        contents = json.load(f)
+        elements.append(contents)
+    return json.dumps(elements)
 
 def load_models():
     global filter_model, classifier_models
